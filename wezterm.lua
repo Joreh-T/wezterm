@@ -70,9 +70,10 @@ config.font = wezterm.font_with_fallback({
 config.font_size = 14
 
 --------------------------------- Colorscheme ---------------------------------
-config.color_scheme = "Catppuccin Frappe"
+-- config.color_scheme = "Catppuccin Frappe"
 -- config.color_scheme = 'OneHalfDark'
--- config.color_scheme = 'OneDark (base16)'
+config.color_scheme = "OneDark (base16)"
+-- auto switch dark/light mode
 -- config.color_scheme = F.scheme_for_appearance(
 --     wezterm.gui.get_appearance(),
 --     custom.color_scheme.dark,
@@ -80,21 +81,32 @@ config.color_scheme = "Catppuccin Frappe"
 -- )
 colors = wezterm.get_builtin_color_schemes()[config.color_scheme]
 
-local active_fg = colors.indexed[16] or colors.foreground
+-- theme colors adjustments
+-- colors.background = "#2D2F3A"
+
+-- terminal colors
+local color_inactive_pane_sep = colors.ansi[1]
+if config.color_scheme == "OneDark (base16)" then
+    color_inactive_pane_sep = colors.brights[1]
+elseif config.color_scheme == "Catppuccin Frappe" then
+    color_inactive_pane_sep = colors.ansi[1]
+end
 
 config.colors = {
     compose_cursor = colors.ansi[2],
-    cursor_bg = colors.indexed[16],
-    cursor_border = colors.indexed[16],
+    cursor_bg = colors.brights[8],
+    cursor_border = colors.brights[8],
     split = colors.indexed[16],
     tab_bar = {
         background = colors.background,
         active_tab = {
             bg_color = colors.background,
-            fg_color = active_fg,
+            fg_color = colors.foreground,
             italic = true,
         },
     },
+    background = "#2d3139",
+    -- background = "#24292d",
     visual_bell = colors.ansi[1],
 }
 
@@ -117,7 +129,7 @@ config.window_decorations = "INTEGRATED_BUTTONS|RESIZE"
 
 config.window_padding = {
     left = 0,
-    right = 5,
+    right = 10,
     top = 10,
     bottom = 0,
 }
@@ -555,11 +567,11 @@ wezterm.on("update-status", function(window, pane)
         { Background = { Color = workspace_color } },
         { Foreground = { Color = colors.ansi[1] } },
         { Text = nerdfonts.cod_terminal_tmux .. " " },
-        { Background = { Color = colors.ansi[1] } },
+        { Background = { Color = color_inactive_pane_sep } },
         { Foreground = { Color = workspace_color } },
         { Text = " " .. stat .. " " },
         { Background = { Color = colors.background } },
-        { Foreground = { Color = colors.ansi[1] } },
+        { Foreground = { Color = color_inactive_pane_sep } },
         { Text = nerdfonts.ple_right_half_circle_thick .. " " },
     }))
 
@@ -750,9 +762,9 @@ wezterm.on("format-tab-title", function(tab, panes)
     else
         return {
             { Background = { Color = colors.background } },
-            { Foreground = { Color = colors.ansi[1] } },
+            { Foreground = { Color = color_inactive_pane_sep } },
             { Text = nerdfonts.ple_left_half_circle_thick },
-            { Background = { Color = colors.ansi[1] } },
+            { Background = { Color = color_inactive_pane_sep } },
             { Foreground = { Color = colors.foreground } },
             { Text = title .. " " },
             { Background = { Color = colors.ansi[5] } },
