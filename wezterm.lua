@@ -61,7 +61,8 @@ config.launch_menu = {
 config.warn_about_missing_glyphs = false
 config.font = wezterm.font_with_fallback({
     -- main font
-    { family = "Maple Mono NF CN", weight = "Regular" },
+    { family = "Maple Mono CN", weight = "Regular" },
+    -- { family = "Maple Mono NF CN", weight = "Regular" },
     { family = "JetBrainsMono Nerd Font", weight = "Regular" },
     { family = "FiraCode Nerd Font Mono", weight = "Regular" },
     { family = "Segoe UI Emoji", weight = "Regular" },
