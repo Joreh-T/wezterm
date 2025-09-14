@@ -43,15 +43,19 @@ config.automatically_reload_config = true
 -- Launch commands
 config.launch_menu = {
     {
-        label = "PoserShell",
+        label = "󰨊 PoserShell",
         args = { "powershell.exe", "-NoLogo" },
     },
     {
-        label = "WSL-default",
+        label = " WSL Default",
         args = { "wsl.exe", "~" },
     },
     {
-        label = "Cmd",
+        label = " SSH -> 100Ask",
+        args = { "ssh", "root@192.168.5.9" },
+    },
+    {
+        label = " Cmd",
         args = { "cmd.exe" },
     },
 }
@@ -87,10 +91,14 @@ colors = wezterm.get_builtin_color_schemes()[config.color_scheme]
 
 -- terminal colors
 local color_inactive_pane_sep = colors.ansi[1]
+local color_window_decorations = "#333333"
+
 if config.color_scheme == "OneDark (base16)" then
     color_inactive_pane_sep = colors.brights[1]
+    color_window_decorations = "#333333"
 elseif config.color_scheme == "Catppuccin Frappe" then
     color_inactive_pane_sep = colors.ansi[1]
+    color_window_decorations = "#414559"
 end
 
 config.colors = {
@@ -639,7 +647,8 @@ wezterm.on("update-status", function(window, pane)
         { Background = { Color = colors.background } },
         { Foreground = { Color = colors.ansi[1] } },
         { Text = nerdfonts.ple_right_half_circle_thick .. " " },
-        -- {Text = nerdfonts.ple_left_half_circle_thick }
+        { Foreground = { Color = color_window_decorations } },
+        { Text = nerdfonts.ple_left_half_circle_thick },
     }))
 end)
 
