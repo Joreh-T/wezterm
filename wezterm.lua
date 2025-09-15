@@ -6,6 +6,8 @@ local mux = wezterm.mux
 local F = require("functions")
 -- local W = require("workspaces")
 
+--Weztern Built-in Nerdfont Icons:  https://wezfurlong.org/wezterm/config/lua/wezterm/nerdfonts.html
+
 local colors = {}
 local config = {}
 local custom = {}
@@ -22,7 +24,7 @@ custom = {
     },
     timeout = {
         key = 3000,
-        leader = 1000,
+        leader = 1200,
     },
     username = os.getenv("USER") or os.getenv("LOGNAME") or os.getenv("USERNAME"),
 }
@@ -91,7 +93,7 @@ colors = wezterm.get_builtin_color_schemes()[config.color_scheme]
 
 -- terminal colors
 local color_inactive_pane_sep = colors.ansi[1]
-local color_window_decorations = "#333333"
+local color_window_decorations = "#333333" -- used in Minimize, Maximize, Close button
 
 if config.color_scheme == "OneDark (base16)" then
     color_inactive_pane_sep = colors.brights[1]
@@ -114,8 +116,8 @@ config.colors = {
             italic = true,
         },
     },
-    background = "#2d3139",
-    -- background = "#24292d",
+    foreground = colors.brights[8],
+    -- background = "#2d3139",
     visual_bell = colors.ansi[1],
 }
 
@@ -124,11 +126,6 @@ config.bold_brightens_ansi_colors = true
 config.initial_cols = 110
 config.initial_rows = 30
 
-config.foreground_text_hsb = {
-    brightness = 1.0,
-    hue = 1.0,
-    saturation = 1.0,
-}
 config.text_background_opacity = 1
 config.window_background_opacity = 0.9
 -- config.win32_system_backdrop = "Acrylic"
@@ -143,7 +140,15 @@ config.window_padding = {
     bottom = 0,
 }
 
--- Pane
+-- Tab/Pane Viewing
+-- active pane
+config.foreground_text_hsb = {
+    brightness = 0.98,
+    hue = 1.0,
+    saturation = 0.97,
+}
+
+-- inactive pane
 config.inactive_pane_hsb = {
     saturation = 0.9,
     -- hue = 1.0,
@@ -172,8 +177,8 @@ config.use_fancy_tab_bar = false
 --------------------------------- Graphics ---------------------------------
 config.animation_fps = 30
 config.front_end = "WebGpu"
-config.max_fps = 60
-config.webgpu_power_preference = "HighPerformance" -- LowPower
+config.max_fps = 30
+config.webgpu_power_preference = "LowPower" -- LowPower, HighPerformance
 
 --------------------------------- Keys ---------------------------------
 -- IME
@@ -203,7 +208,7 @@ config.keys = {
     },
     -- CTRL + W close current Tab
     { key = "w", mods = "CTRL", action = action.CloseCurrentTab({ confirm = true }) },
-    -- close current Pane
+    -- close current Tab
     { key = "q", mods = "ALT", action = action.CloseCurrentPane({ confirm = true }) },
     -- {
     --     key = "l",
@@ -352,7 +357,7 @@ config.keys = {
     { key = "w", mods = "LEADER", action = action.CloseCurrentPane({ confirm = true }) },
     { key = "z", mods = "LEADER", action = action.TogglePaneZoomState },
     { key = "/", mods = "LEADER", action = action.Search({ CaseInSensitiveString = "" }) },
-    -- pane split
+    -- Tab split
     { key = "-", mods = "LEADER", action = action.SplitVertical({ domain = "CurrentPaneDomain" }) },
     { key = "\\", mods = "LEADER", action = action.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
     {
@@ -472,7 +477,7 @@ config.key_tables = {
 --------------------------------- Mouse & Cursor ---------------------------------
 -- Cursor
 F.gsettings_config(config)
-config.bypass_mouse_reporting_modifiers = "SHIFT"
+config.bypass_mouse_reporting_modifiers = "ALT"
 config.cursor_blink_ease_in = "Linear"
 config.cursor_blink_rate = 500
 config.default_cursor_style = "BlinkingBlock"
@@ -496,11 +501,29 @@ config.alternate_buffer_wheel_scroll_speed = 5
 config.mouse_bindings = {
     { event = { Down = { streak = 1, button = "Middle" } }, mods = "NONE", action = action.PasteFrom("Clipboard") },
     {
+        event = { Drag = { streak = 1, button = "Left" } },
+        mods = "ALT",
+        action = wezterm.action.StartWindowDrag,
+    },
+    -- {
+    --     event = { Up = { streak = 1, button = "Left" } },
+    --     action = action.Multiple({
+    --         action.CompleteSelectionOrOpenLinkAtMouseCursor("ClipboardAndPrimarySelection"),
+    --         action.ClearSelection,
+    --     }),
+    -- },
+    {
         event = { Up = { streak = 1, button = "Left" } },
-        action = action.Multiple({
-            action.CompleteSelectionOrOpenLinkAtMouseCursor("ClipboardAndPrimarySelection"),
-            action.ClearSelection,
-        }),
+        action = wezterm.action_callback(function(window, pane)
+            wezterm.sleep_ms(100)
+            window:perform_action(
+                wezterm.action.Multiple({
+                    wezterm.action.CompleteSelectionOrOpenLinkAtMouseCursor("ClipboardAndPrimarySelection"),
+                    wezterm.action.ClearSelection,
+                }),
+                pane
+            )
+        end),
     },
 
     {
@@ -513,7 +536,7 @@ config.mouse_bindings = {
         mods = "NONE",
         action = action.Multiple({ action.CopyTo("ClipboardAndPrimarySelection"), action.ClearSelection }),
     },
-    { event = { Up = { streak = 1, button = "Left" } }, mods = "CTRL", action = action.OpenLinkAtMouseCursor },
+    { event = { Up = { streak = 1, button = "Left" } }, mods = "ALT", action = action.OpenLinkAtMouseCursor },
 
     {
         event = { Down = { streak = 1, button = { WheelDown = 1 } } },
@@ -528,6 +551,32 @@ config.mouse_bindings = {
 }
 
 --------------------------------- Events ---------------------------------
+wezterm.on("augment-command-palette", function(window, pane)
+    return {
+        {
+            brief = "Rename Tab",
+            icon = "md_rename_box",
+
+            action = action.PromptInputLine({
+                description = "Enter new name for current tab",
+                initial_value = "",
+                action = wezterm.action_callback(function(window, pane, line)
+                    if line then
+                        window:active_tab():set_title(line)
+                    end
+                end),
+            }),
+        },
+        -- send text to shell
+        -- {
+        --     brief = "example",
+        --     icon = " ",
+        --     action = wezterm.action_callback(function(window, pane)
+        --         pane:send_text("pwd\r")
+        --     end),
+        -- },
+    }
+end)
 -- Events update status
 wezterm.on("update-status", function(window, pane)
     -- Workspace name
@@ -587,7 +636,6 @@ wezterm.on("update-status", function(window, pane)
     -- Right status
     window:set_right_status(wezterm.format({
         -- Wezterm has a built-in nerd fonts
-        -- https://wezfurlong.org/wezterm/config/lua/wezterm/nerdfonts.html
         --
         -- Current working directory
         -- { Text = " " },
