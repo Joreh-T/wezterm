@@ -62,20 +62,6 @@ config.launch_menu = {
     },
 }
 
---------------------------------- Font ---------------------------------
---- diable missing font glyph warnings
-config.warn_about_missing_glyphs = false
-config.font = wezterm.font_with_fallback({
-    -- main font
-    { family = "Maple Mono CN", weight = "Regular" },
-    -- { family = "Maple Mono NF CN", weight = "Regular" },
-    { family = "JetBrainsMono Nerd Font", weight = "Regular" },
-    { family = "FiraCode Nerd Font Mono", weight = "Regular" },
-    { family = "Segoe UI Emoji", weight = "Regular" },
-    { family = "Noto Color Emoji", weight = "Regular" },
-})
-config.font_size = 14
-
 --------------------------------- Colorscheme ---------------------------------
 -- config.color_scheme = "Catppuccin Frappe"
 -- config.color_scheme = 'OneHalfDark'
@@ -120,6 +106,35 @@ config.colors = {
     -- background = "#2d3139",
     visual_bell = colors.ansi[1],
 }
+
+--------------------------------- Font ---------------------------------
+--- diable missing font glyph warnings
+config.warn_about_missing_glyphs = false
+config.font = wezterm.font_with_fallback({
+    -- main font
+    { family = "Maple Mono CN", weight = "Regular" },
+    -- { family = "Maple Mono NF CN", weight = "Regular" },
+    { family = "JetBrainsMono Nerd Font", weight = "Regular" },
+    { family = "FiraCode Nerd Font Mono", weight = "Regular" },
+    { family = "Segoe UI Emoji", weight = "Regular" },
+    { family = "Noto Color Emoji", weight = "Regular" },
+})
+config.font_size = 14
+-- config.line_height = 1
+
+----------------------------- Commands Palette ---------------------------
+config.command_palette_font_size = 15
+config.command_palette_font = wezterm.font_with_fallback({
+    -- main font
+    -- { family = "Maple Mono CN", weight = "Regular" },
+    -- { family = "Maple Mono NF CN", weight = "Regular" },
+    { family = "JetBrainsMono Nerd Font", weight = "Regular" },
+    { family = "FiraCode Nerd Font Mono", weight = "Regular" },
+    { family = "Segoe UI Emoji", weight = "Regular" },
+    { family = "Noto Color Emoji", weight = "Regular" },
+})
+config.command_palette_bg_color = "#35383d"
+-- config.ommand_palette_fg_color = rgba(0.75, 0.75, 0.75, 1.0)
 
 --------------------------------- Window ---------------------------------
 config.bold_brightens_ansi_colors = true
@@ -240,10 +255,15 @@ config.keys = {
     { key = "p", mods = "CTRL|SHIFT", action = action.ActivateCommandPalette },
     { key = "n", mods = "ALT", action = action.ShowLauncherArgs({ flags = "FUZZY|LAUNCH_MENU_ITEMS" }) },
     -- Pane switch
-    { key = "UpArrow", mods = "ALT", action = action.ActivatePaneDirection("Up") },
-    { key = "DownArrow", mods = "ALT", action = action.ActivatePaneDirection("Down") },
-    { key = "RightArrow", mods = "ALT", action = action.ActivatePaneDirection("Right") },
-    { key = "LeftArrow", mods = "ALT", action = action.ActivatePaneDirection("Left") },
+    { key = "UpArrow", mods = "CTRL|SHIFT", action = action.ActivatePaneDirection("Up") },
+    { key = "DownArrow", mods = "CTRL|SHIFT", action = action.ActivatePaneDirection("Down") },
+    { key = "RightArrow", mods = "CTRL|SHIFT", action = action.ActivatePaneDirection("Right") },
+    { key = "LeftArrow", mods = "CTRL|SHIFT", action = action.ActivatePaneDirection("Left") },
+
+    { key = "k", mods = "CTRL|SHIFT", action = action.ActivatePaneDirection("Up") },
+    { key = "j", mods = "CTRL|SHIFT", action = action.ActivatePaneDirection("Down") },
+    { key = "l", mods = "CTRL|SHIFT", action = action.ActivatePaneDirection("Right") },
+    { key = "h", mods = "CTRL|SHIFT", action = action.ActivatePaneDirection("Left") },
 
     -- buufer scroll
     { key = "UpArrow", mods = "SHIFT", action = action.ScrollByLine(-1) },
@@ -575,6 +595,21 @@ wezterm.on("augment-command-palette", function(window, pane)
         --         pane:send_text("pwd\r")
         --     end),
         -- },
+        {
+            brief = "Show Shell Color",
+            icon = " ",
+            action = wezterm.action_callback(function(window, pane)
+                local cmd = [[
+for i in {0..255}; do
+    printf "\e[48;5;%dm  \e[49m\e[38;5;%dm%03d\e[0m " $i $i $i
+    if [ $((i % 6)) -eq 3 ]; then
+        echo
+    fi
+done
+]]
+                pane:send_text(cmd .. "\r")
+            end),
+        },
     }
 end)
 -- Events update status
