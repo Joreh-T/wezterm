@@ -56,6 +56,10 @@ config.launch_menu = {
         label = " SSH -> 100Ask",
         args = { "ssh", "root@192.168.5.9" },
     },
+    -- {
+    --     label = " SSH -> 512",
+    --     args = { "ssh", "admin@192.168.225.1" },
+    -- },
     {
         label = " Cmd",
         args = { "cmd.exe" },
@@ -93,7 +97,7 @@ config.colors = {
     compose_cursor = colors.ansi[2],
     cursor_bg = colors.brights[8],
     cursor_border = colors.brights[8],
-    split = colors.indexed[16],
+    split = colors.brights[1],
     tab_bar = {
         background = colors.background,
         active_tab = {
@@ -104,7 +108,8 @@ config.colors = {
     },
     foreground = colors.brights[8],
     -- background = "#2d3139",
-    visual_bell = colors.ansi[1],
+    visual_bell = colors.ansi[2],
+    -- scrollbar_thumb = colors.brights[1],
 }
 
 --------------------------------- Font ---------------------------------
@@ -120,7 +125,9 @@ config.font = wezterm.font_with_fallback({
     { family = "Noto Color Emoji", weight = "Regular" },
 })
 config.font_size = 14
--- config.line_height = 1
+if custom.hostname.current == "fresh" then
+    -- config.line_height = 0.9
+end
 
 ----------------------------- Commands Palette ---------------------------
 config.command_palette_font_size = 15
@@ -151,23 +158,23 @@ config.window_decorations = "INTEGRATED_BUTTONS|RESIZE"
 config.window_padding = {
     left = 0,
     right = 10,
-    top = 10,
+    top = config.font_size/2,
     bottom = 0,
 }
 
 -- Tab/Pane Viewing
 -- active pane
 config.foreground_text_hsb = {
-    brightness = 0.98,
-    hue = 1.0,
+    brightness = 0.99,
     saturation = 0.97,
+    -- hue = 1.0,
 }
 
 -- inactive pane
 config.inactive_pane_hsb = {
-    saturation = 0.9,
+    brightness = 0.85,
+    saturation = 0.94,
     -- hue = 1.0,
-    brightness = 0.8,
 }
 
 -- Bell
@@ -190,10 +197,12 @@ config.tab_max_width = 30
 config.use_fancy_tab_bar = false
 
 --------------------------------- Graphics ---------------------------------
-config.animation_fps = 30
+config.animation_fps = 23
+-- config.cursor_blink_ease_in = "EaseIn"
+-- config.cursor_blink_ease_out = "EaseOut"
 config.front_end = "WebGpu"
-config.max_fps = 30
-config.webgpu_power_preference = "LowPower" -- LowPower, HighPerformance
+config.max_fps = 60
+config.webgpu_power_preference = "HighPerformance" -- HighPerformance or LowPower(Not recommended option 'LowPower', may cause the terminal to freeze when using a non-full English keyboard.), 
 
 --------------------------------- Keys ---------------------------------
 -- IME
@@ -222,7 +231,7 @@ config.keys = {
         -- action = wezterm.action.ClearScrollback 'ScrollbackAndViewport',
     },
     -- CTRL + W close current Tab
-    { key = "w", mods = "CTRL", action = action.CloseCurrentTab({ confirm = true }) },
+    { key = "w", mods = "ALT", action = action.CloseCurrentTab({ confirm = true }) },
     -- close current Tab
     { key = "q", mods = "ALT", action = action.CloseCurrentPane({ confirm = true }) },
     -- {
@@ -233,7 +242,7 @@ config.keys = {
     --         action.EmitEvent("flash-terminal"),
     --     }),
     -- },
-    { key = "t", mods = "CTRL", action = action.SpawnTab("DefaultDomain") },
+    { key = "t", mods = "ALT", action = action.SpawnTab("DefaultDomain") },
     {
         key = "v",
         mods = "CTRL|SHIFT",
@@ -310,7 +319,7 @@ config.keys = {
         key = "o",
         mods = "LEADER",
         action = action.ActivateKeyTable({
-            name = "open",
+            name = "Open",
             one_shot = false,
             until_unknown = true,
             timeout_milliseconds = custom.timeout.key,
@@ -320,7 +329,7 @@ config.keys = {
         key = "m",
         mods = "LEADER",
         action = action.ActivateKeyTable({
-            name = "move",
+            name = "Move",
             one_shot = false,
             until_unknown = false,
             timeout_milliseconds = custom.timeout.key,
@@ -330,7 +339,7 @@ config.keys = {
         key = "r",
         mods = "LEADER",
         action = action.ActivateKeyTable({
-            name = "resize",
+            name = "Resize",
             one_shot = false,
             until_unknown = true,
             timeout_milliseconds = custom.timeout.key,
@@ -340,7 +349,7 @@ config.keys = {
         key = "y",
         mods = "LEADER",
         action = action.ActivateKeyTable({
-            name = "copy",
+            name = "Copy",
             one_shot = false,
             until_unknown = true,
             timeout_milliseconds = custom.timeout.key,
@@ -420,7 +429,7 @@ for i = 1, 9 do
 end
 
 config.key_tables = {
-    copy = {
+    Copy = {
         { key = "b", action = action.EmitEvent("copy-buffer-from-pane") },
         { key = "p", action = action.EmitEvent("copy-text-from-pane") },
         {
@@ -457,7 +466,7 @@ config.key_tables = {
         },
     },
 
-    move = {
+    Move = {
         { key = "r", action = action.RotatePanes("CounterClockwise") },
         { key = "s", action = action.PaneSelect },
         { key = "Enter", action = "PopKeyTable" },
@@ -466,7 +475,7 @@ config.key_tables = {
         { key = "RightArrow", mods = "SHIFT", action = action.MoveTabRelative(1) },
     },
 
-    resize = {
+    Resize = {
         { key = "DownArrow", action = action.AdjustPaneSize({ "Down", 1 }) },
         { key = "LeftArrow", action = action.AdjustPaneSize({ "Left", 1 }) },
         { key = "RightArrow", action = action.AdjustPaneSize({ "Right", 1 }) },
@@ -475,7 +484,7 @@ config.key_tables = {
         { key = "Escape", action = "PopKeyTable" },
     },
 
-    open = {
+    Open = {
         {
             key = "u",
             action = action({
@@ -497,12 +506,12 @@ config.key_tables = {
 --------------------------------- Mouse & Cursor ---------------------------------
 -- Cursor
 F.gsettings_config(config)
-config.bypass_mouse_reporting_modifiers = "ALT"
+config.bypass_mouse_reporting_modifiers = "SHIFT"
 config.cursor_blink_ease_in = "Linear"
 config.cursor_blink_rate = 500
 config.default_cursor_style = "BlinkingBlock"
 config.force_reverse_video_cursor = false
-config.hide_mouse_cursor_when_typing = false
+config.hide_mouse_cursor_when_typing = true
 
 -- Hyperlink
 config.hyperlink_rules = wezterm.default_hyperlink_rules()
@@ -520,11 +529,11 @@ config.alternate_buffer_wheel_scroll_speed = 5
 -- config.disable_default_mouse_bindings = true
 config.mouse_bindings = {
     { event = { Down = { streak = 1, button = "Middle" } }, mods = "NONE", action = action.PasteFrom("Clipboard") },
-    {
-        event = { Drag = { streak = 1, button = "Left" } },
-        mods = "ALT",
-        action = wezterm.action.StartWindowDrag,
-    },
+    -- {
+    --     event = { Drag = { streak = 1, button = "Left" } },
+    --     mods = "SHIFT",
+    --     action = wezterm.action.StartWindowDrag,
+    -- },
     -- {
     --     event = { Up = { streak = 1, button = "Left" } },
     --     action = action.Multiple({
@@ -556,7 +565,7 @@ config.mouse_bindings = {
         mods = "NONE",
         action = action.Multiple({ action.CopyTo("ClipboardAndPrimarySelection"), action.ClearSelection }),
     },
-    { event = { Up = { streak = 1, button = "Left" } }, mods = "ALT", action = action.OpenLinkAtMouseCursor },
+    { event = { Up = { streak = 1, button = "Left" } }, mods = "SHIFT", action = action.OpenLinkAtMouseCursor },
 
     {
         event = { Down = { streak = 1, button = { WheelDown = 1 } } },
@@ -587,17 +596,30 @@ wezterm.on("augment-command-palette", function(window, pane)
                 end),
             }),
         },
-        -- send text to shell
-        -- {
-        --     brief = "example",
-        --     icon = " ",
-        --     action = wezterm.action_callback(function(window, pane)
-        --         pane:send_text("pwd\r")
-        --     end),
-        -- },
         {
-            brief = "Show Shell Color",
-            icon = " ",
+            brief = "SSH Login 512",
+            icon = "md_login",
+            action = wezterm.action_callback(function(window, pane)
+                pane:send_text("ssh admin@192.168.225.1\r")
+                wezterm.sleep_ms(500)
+                pane:send_text("admin@123\r\n")
+                pane:send_text("support enable\r\n")
+                pane:send_text("inhand\r\n")
+                wezterm.sleep_ms(200)
+                pane:send_text("root$!^&/2022@inhand\r\n")
+                window:active_tab():set_title("SSH->512")
+            end),
+        },
+        {
+            brief = "Dtu Log",
+            icon = "md_math_log",
+            action = wezterm.action_callback(function(window, pane)
+                pane:send_text("tail -f /var/log/messages\r\n")
+            end),
+        },
+        {
+            brief = "Show Shell Color ",
+            icon = "cod_symbol_color",
             action = wezterm.action_callback(function(window, pane)
                 local cmd = [[
 for i in {0..255}; do
@@ -630,7 +652,7 @@ wezterm.on("update-status", function(window, pane)
     end
 
     if "default" == stat then
-        stat = nerdfonts.md_graphql
+        stat = nerdfonts.dev_scalingo
     end
 
     -- Current working directory
@@ -757,7 +779,10 @@ wezterm.on("format-tab-title", function(tab, panes)
         -- wezterm.log_info("Tab title too long: " .. title)
         -- title = string.sub(title, 1, config.tab_max_width - 12) .. ".. "
         title = F.shorten_path(title, config.tab_max_width - 12)
+    else
+        title = title:gsub("%.exe$", "")
     end
+    -- wezterm.log_info("Tab title: " .. title)
 
     -- Add terminal icon
     if tab.is_active then
