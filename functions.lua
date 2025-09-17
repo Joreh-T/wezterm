@@ -2,6 +2,23 @@ local wezterm = require("wezterm")
 local action = wezterm.action
 local F = {}
 
+-- platform detection
+function F.is_windows_os()
+    return wezterm.target_triple == 'x86_64-pc-windows-msvc'
+end
+
+function F.is_mac_arm_os()
+    return wezterm.target_triple == 'aarch64-apple-darwin'
+end
+
+function F.is_mac_intel_os()
+    return wezterm.target_triple == 'x86_64-apple-darwin'
+end
+
+function F.is_linux_os()
+    return wezterm.target_triple == 'x86_64-unknown-linux-gnu'
+end
+
 -- Check if file exists
 function F.file_exists(name)
     local file = io.open(name, "r")

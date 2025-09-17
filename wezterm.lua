@@ -199,12 +199,16 @@ config.tab_max_width = 30
 config.use_fancy_tab_bar = false
 
 --------------------------------- Graphics ---------------------------------
-config.animation_fps = 23
--- config.cursor_blink_ease_in = "EaseIn"
--- config.cursor_blink_ease_out = "EaseOut"
-config.front_end = "WebGpu"
-config.max_fps = 60
-config.webgpu_power_preference = "HighPerformance" -- HighPerformance or LowPower(Not recommended option 'LowPower', may cause the terminal to freeze when using a non-full English keyboard.),
+if custom.hostname.current == "fresh" then
+    config.animation_fps = 1
+else
+    config.animation_fps = 23
+    -- config.cursor_blink_ease_in = "EaseIn"
+    -- config.cursor_blink_ease_out = "EaseOut"
+    config.front_end = "WebGpu"
+    config.max_fps = 75
+    config.webgpu_power_preference = "HighPerformance" -- HighPerformance or LowPower
+end
 
 --------------------------------- Keys ---------------------------------
 -- IME
@@ -245,6 +249,7 @@ config.keys = {
     --     }),
     -- },
     { key = "t", mods = "ALT", action = action.SpawnTab("DefaultDomain") },
+    -- copy/paste
     {
         key = "v",
         mods = "CTRL|SHIFT",
@@ -253,7 +258,6 @@ config.keys = {
             action.ClearSelection,
         }),
     },
-
     {
         key = "c",
         mods = "CTRL|SHIFT",
@@ -262,8 +266,17 @@ config.keys = {
             action.ClearSelection,
         }),
     },
-
+    -- move pane to new window
+    {
+        key = "p",
+        mods = "CTRL|ALT",
+        action = wezterm.action_callback(function(win, pane)
+            local tab, window = pane:move_to_new_window()
+        end),
+    },
+    -- open command palette
     { key = "p", mods = "CTRL|SHIFT", action = action.ActivateCommandPalette },
+    -- open launch menu
     { key = "n", mods = "ALT", action = action.ShowLauncherArgs({ flags = "FUZZY|LAUNCH_MENU_ITEMS" }) },
     -- Pane switch
     { key = "UpArrow", mods = "CTRL|SHIFT", action = action.ActivatePaneDirection("Up") },
@@ -786,10 +799,10 @@ wezterm.on("format-tab-title", function(tab, panes)
     end
     -- wezterm.log_info("Tab title: " .. title)
 
-    -- Add terminal icon
-    if tab.is_active then
-        title = nerdfonts.dev_terminal .. " " .. title
-    end
+    -- -- Add terminal icon
+    -- if tab.is_active then
+    --     title = nerdfonts.dev_terminal .. " " .. title
+    -- end
 
     -- Add zoom icon
     if pane.is_zoomed then
@@ -801,60 +814,66 @@ wezterm.on("format-tab-title", function(tab, panes)
         title = nerdfonts.md_content_copy .. " " .. title
     end
 
+    local need_terminal_icon = true
     -- Add icon to command
     if command then
+        need_terminal_icon = false
         -- Add docker icon
         if command == "docker" or command == "podman" then
             title = nerdfonts.linux_docker .. " " .. title
-        end
-
         -- Add kubernetes icon
-        if command == "kind" or command == "kubectl" then
+        elseif command == "kind" or command == "kubectl" then
             title = nerdfonts.md_kuberntes .. " " .. title
-        end
-
         -- Add ssh icon
-        if command == "ssh" then
+        elseif command == "ssh" then
             title = nerdfonts.md_remote_desktop .. " " .. title
-        end
-
         -- Add monitoring icon
-        if string.match(command, "^([bh]?)top") then
+        elseif string.match(command, "^([bh]?)top") then
             title = nerdfonts.md_monitor_eye .. " " .. title
-        end
-
         -- Add vim icon
-        if string.match(command, "^(n?)vi(m?)") then
+        elseif string.match(command, "^vi(m?)") then
             title = nerdfonts.dev_vim .. " " .. title
-        end
-
+        -- Add nvim icon
+        elseif string.match(pane.title, "^nvim") then
+            title = nerdfonts.custom_neovim .. " " .. title
         -- Add watch icon
-        if command == "watch" then
+        elseif command == "watch" then
             title = nerdfonts.md_eye_outline .. " " .. title
+        else
+            need_terminal_icon = true
         end
     else
+        need_terminal_icon = false
         if string.match(pane.title, "^vi(m?)") then
             title = nerdfonts.dev_vim .. " " .. title
         elseif string.match(pane.title, "^nvim") then
             title = nerdfonts.custom_neovim .. " " .. title
+        else
+            need_terminal_icon = true
         end
     end
 
+    -- Add terminal icon
+    if tab.is_active and need_terminal_icon then
+        title = nerdfonts.dev_terminal .. " " .. title
+    end
+
     -- Add bell icon
-    -- on inactive panes if something shows up
-    local has_unseen_output = false
-    if not tab.is_active then
-        for _, pane in ipairs(tab.panes) do
-            if pane.has_unseen_output then
-                has_unseen_output = true
-                break
+    if not F.is_windows_os() then
+        -- on inactive panes if something shows up
+        local has_unseen_output = false
+        if not tab.is_active then
+            for _, pane in ipairs(tab.panes) do
+                if pane.has_unseen_output then
+                    has_unseen_output = true
+                    break
+                end
             end
         end
-    end
 
-    -- Add bell icon
-    if has_unseen_output then
-        title = nerdfonts.md_bell_ring_outline .. " " .. title
+        if has_unseen_output then
+            title = nerdfonts.md_bell_ring_outline .. " " .. title
+        end
     end
 
     if tab.is_active then
