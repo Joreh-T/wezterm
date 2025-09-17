@@ -199,16 +199,18 @@ config.tab_max_width = 30
 config.use_fancy_tab_bar = false
 
 --------------------------------- Graphics ---------------------------------
-if custom.hostname.current == "fresh" then
-    config.animation_fps = 1
-else
-    config.animation_fps = 23
-    -- config.cursor_blink_ease_in = "EaseIn"
-    -- config.cursor_blink_ease_out = "EaseOut"
-    config.front_end = "WebGpu"
-    config.max_fps = 75
-    config.webgpu_power_preference = "HighPerformance" -- HighPerformance or LowPower
-end
+config.animation_fps = 1
+-- When using a non-English keyboard to input a return(Enter), the following configuration will cause the terminal to freeze.
+-- if custom.hostname.current == "fresh" then
+    -- config.animation_fps = 1
+-- else
+--     config.animation_fps = 23
+--     -- config.cursor_blink_ease_in = "EaseIn"
+--     -- config.cursor_blink_ease_out = "EaseOut"
+--     config.front_end = "WebGpu"
+--     config.max_fps = 75
+--     config.webgpu_power_preference = "HighPerformance" -- HighPerformance or LowPower
+-- end
 
 --------------------------------- Keys ---------------------------------
 -- IME
