@@ -155,10 +155,12 @@ config.window_background_opacity = 0.9
 config.win32_system_backdrop = "Tabbed"
 config.window_decorations = "INTEGRATED_BUTTONS|RESIZE"
 
+local top_padding = ("fresh" == custom.hostname.current) and { config.font_size / 2 } or { config.font_size }
+
 config.window_padding = {
     left = 0,
     right = 10,
-    top = config.font_size/2,
+    top = top_padding[1],
     bottom = 0,
 }
 
@@ -202,7 +204,7 @@ config.animation_fps = 23
 -- config.cursor_blink_ease_out = "EaseOut"
 config.front_end = "WebGpu"
 config.max_fps = 60
-config.webgpu_power_preference = "HighPerformance" -- HighPerformance or LowPower(Not recommended option 'LowPower', may cause the terminal to freeze when using a non-full English keyboard.), 
+config.webgpu_power_preference = "HighPerformance" -- HighPerformance or LowPower(Not recommended option 'LowPower', may cause the terminal to freeze when using a non-full English keyboard.),
 
 --------------------------------- Keys ---------------------------------
 -- IME
