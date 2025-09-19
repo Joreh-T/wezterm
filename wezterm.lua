@@ -202,7 +202,7 @@ config.use_fancy_tab_bar = false
 config.animation_fps = 1
 -- When using a non-English keyboard to input a return(Enter), the following configuration will cause the terminal to freeze.
 -- if custom.hostname.current == "fresh" then
-    -- config.animation_fps = 1
+-- config.animation_fps = 1
 -- else
 --     config.animation_fps = 23
 --     -- config.cursor_blink_ease_in = "EaseIn"
@@ -625,6 +625,36 @@ wezterm.on("augment-command-palette", function(window, pane)
                 wezterm.sleep_ms(200)
                 pane:send_text("root$!^&/2022@inhand\r\n")
                 window:active_tab():set_title("SSH->512")
+            end),
+        },
+        {
+            brief = "SSH Login 954C",
+            icon = "md_login",
+            action = wezterm.action_callback(function(window, pane)
+                pane:send_text("ssh admin@192.168.2.1\r")
+                wezterm.sleep_ms(500)
+                pane:send_text("admin@123\r\n")
+                wezterm.sleep_ms(500)
+                pane:send_text("inhand\r\n")
+                wezterm.sleep_ms(200)
+                pane:send_text("64391099@inhand\r\n")
+                window:active_tab():set_title("SSH->954C")
+            end),
+        },
+        {
+            brief = "Telnet Login 954C",
+            icon = "md_login",
+            action = wezterm.action_callback(function(window, pane)
+                pane:send_text("telnet 192.168.2.1 23\r")
+                wezterm.sleep_ms(500)
+                pane:send_text("admin\r\n")
+                wezterm.sleep_ms(500)
+                pane:send_text("admin@123\r\n")
+                wezterm.sleep_ms(500)
+                pane:send_text("inhand\r\n")
+                wezterm.sleep_ms(200)
+                pane:send_text("64391099@inhand\r\n")
+                window:active_tab():set_title("Telnet->954C")
             end),
         },
         {
